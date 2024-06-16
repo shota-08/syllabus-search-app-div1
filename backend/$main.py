@@ -22,14 +22,16 @@ class LLMResponse(BaseModel):
     text: str
     title: str
     url: str
+    content: str
 
 def ask_question(query: str) -> str:
-    docs = llm_engine.get_as_retriever_answer(query, db)
-    answer = docs["result"]
-    source_documents = docs["source_documents"]
-    answer_title = source_documents[0].metadata['title']
-    answer_url = source_documents[0].metadata['url']
-    return answer, answer_title, answer_url
+    docs = db.similarity_search(query, k=2)
+    answer_meta = docs[0].metadata
+    answer_title = answer_meta['title']
+    answer_url = answer_meta['url']
+    answer_content = docs[0].page_content
+    answer = llm_engine.get_llm_answer(query, answer_title, answer_content)
+    return answer, answer_title, answer_url, answer_content
 
 app = FastAPI()
 app.add_middleware(
@@ -42,5 +44,5 @@ app.add_middleware(
 
 @app.post("/send")
 async def run_llm(request_data: RequestData):
-    answer, title, url = ask_question(request_data.text)
-    return LLMResponse(text=answer, title=title, url=url)
+    answer, title, url, content = ask_question(request_data.text)
+    return LLMResponse(text=answer, title=title, url=url, content=content)

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import gfm from "remark-gfm";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
@@ -23,7 +25,6 @@ const ChatPage = () => {
         const botResponseText = res.data.text;
         const botResponseTitle = res.data.title;
         const botResponseUrl = res.data.url;
-        const botResponseContent = res.data.content;
         setMessages((prev) => [
           ...prev,
           { text: botResponseText, sender: "bot" },
@@ -33,7 +34,7 @@ const ChatPage = () => {
           {
             title: botResponseTitle,
             url: botResponseUrl,
-            content: botResponseContent,
+            sender: "bot",
           },
         ]);
       })
@@ -42,7 +43,7 @@ const ChatPage = () => {
         setMessages((prev) => [...prev, { text: "error!", sender: "bot" }]);
         setTitles((prevTitles) => [
           ...prevTitles,
-          { title: "", url: "", content: "" },
+          { title: "", url: "", sender: "bot" },
         ]);
       });
   };
@@ -53,30 +54,6 @@ const ChatPage = () => {
         国文学科
       </h1>
 
-      <div className="border-2 rounded flex flex-wrap">
-        {titles.map((title, index) => (
-          <div
-            key={index}
-            className="w-64 h-30 overflow-auto border-2 rounded-lg p-4 m-2"
-          >
-            <p>
-              {title.url ? (
-                <a
-                  href={title.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  {title.title}
-                </a>
-              ) : (
-                title.title
-              )}
-            </p>
-          </div>
-        ))}
-      </div>
-
       <div className="flex-grow overflow-y-auto mb-4">
         {messages.map((message, index) => (
           <div
@@ -86,15 +63,43 @@ const ChatPage = () => {
             <div
               className={
                 message.sender === "user"
-                  ? "bg-blue-500 inline-block rounded-lg px-4 py-2 m-2"
-                  : "bg-green-500 inline-block rounded-lg px-4 py-2 m-2"
+                  ? "bg-blue-500 inline-block rounded-lg px-4 py-2 m-2 text-white"
+                  : "bg-green-500 inline-block rounded-lg px-4 py-2 m-2 text-white"
               }
             >
-              <p className="text-white font-medium">{message.text}</p>
+              <div className="markdown">
+                <ReactMarkdown remarkPlugins={[gfm]}>
+                  {message.text}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         ))}
+        <div className="border-2 rounded flex flex-wrap overflow-y-auto">
+          {titles.map((title, index) => (
+            <div
+              key={index}
+              className="w-64 h-30 overflow-auto border-2 rounded-lg p-4 m-2"
+            >
+              <p>
+                {title.url ? (
+                  <a
+                    href={title.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    {title.title}
+                  </a>
+                ) : (
+                  title.title
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
+
       <div className="flex-shrink-0 relative">
         <input
           type="text"
