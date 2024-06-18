@@ -12,24 +12,29 @@ from llm import llm_engine
 embedding = OpenAIEmbeddings(model= "text-embedding-3-small")
 
 # chroma db呼び出し
-persist_directory = "./docs/chroma"
-db = Chroma(collection_name="langchain_store", persist_directory=persist_directory, embedding_function=embedding)
+kokubun_directory = "./docs/kokubun_chroma"
+kokubun_db = Chroma(collection_name="langchain_store", persist_directory=kokubun_directory, embedding_function=embedding)
 
 class RequestData(BaseModel):
     text: str
 
 class LLMResponse(BaseModel):
     text: str
-    title: str
-    url: str
+    title_1: str
+    url_1: str
+    title_2: str
+    url_2: str
+    title_3: str
+    url_3: str
+    title_4: str
+    url_4: str
 
 def ask_question(query: str) -> str:
-    docs = llm_engine.get_as_retriever_answer(query, db)
+    docs = llm_engine.get_as_retriever_answer(query, kokubun_db)
     answer = docs["result"]
     source_documents = docs["source_documents"]
-    answer_title = source_documents[0].metadata['title']
-    answer_url = source_documents[0].metadata['url']
-    return answer, answer_title, answer_url
+    titles_urls = [(doc.metadata['title'], doc.metadata['url']) for doc in source_documents[:4]]
+    return (answer, *sum(titles_urls, ()))
 
 app = FastAPI()
 app.add_middleware(
@@ -40,7 +45,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/send")
+@app.post("/kokubun")
 async def run_llm(request_data: RequestData):
-    answer, title, url = ask_question(request_data.text)
-    return LLMResponse(text=answer, title=title, url=url)
+    answer, title_1, url_1, title_2, url_2, title_3, url_3, title_4, url_4 = ask_question(request_data.text)
+    return LLMResponse(text=answer,
+        title_1=title_1, url_1=url_1,
+        title_2=title_2, url_2=url_2,
+        title_3=title_3, url_3=url_3,
+        title_4=title_4, url_4=url_4
+    )

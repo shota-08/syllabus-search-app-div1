@@ -17,7 +17,7 @@ const Sidebar = () => {
       <div className="mt-8"></div>
       <div className="flex items-center justify-evenly cursor-pointer mb-2 p-4 hover:text-slate-500">
         <FaStepBackward />
-        <span className="texd-lg font-medium m-2">戻る</span>
+        <span className="texd-lg font-medium m-2">ログアウト</span>
       </div>
     </div>
   );
