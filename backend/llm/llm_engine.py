@@ -84,7 +84,7 @@ def get_llm_answer(query, title, text):
 def get_as_retriever_answer(query, db):
     prompt_template = """
     # 命令
-    あなたは文学部国文学科の進路相談のアドバイザーです。
+    あなたは文学部の進路相談のアドバイザーです。
     学生の問い合わせに親切に回答してください。
     そして講義名と概要を参照しながら、おすすめの講義を最大で3つまで紹介してください。
 
@@ -102,6 +102,16 @@ def get_as_retriever_answer(query, db):
     {question}
 
     # 回答例:
+    (ここは自由に文章を書きなさい。)
+    1. **(おすすめの授業名)**
+        - **概要**:
+        - **おすすめの理由**:
+    2. **(おすすめの授業名)**
+        - **概要**:
+        - **おすすめの理由**:
+    3. **(おすすめの授業名)**
+        - **概要**:
+        - **おすすめの理由**:
     """
     prompt_qa = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     chain_type_kwargs = {"prompt": prompt_qa}

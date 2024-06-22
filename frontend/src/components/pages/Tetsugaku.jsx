@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
+import { FaPaperPlane } from "react-icons/fa";
+import LoadingIcons from "react-loading-icons";
 
-const Kokubun = () => {
+const Tetsugaku = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [titles, setTitles] = useState([]);
-  const url = "http://127.0.0.1:8001/kokubun";
+  const [isLoading, setIsLoading] = useState(false);
+  const url = "http://127.0.0.1:8001/tetsugaku";
 
   const sendMessage = () => {
     const userMessage = inputMessage;
@@ -18,6 +20,7 @@ const Kokubun = () => {
       { text: userMessage, title: "", sender: "user" },
     ]);
     setInputMessage(""); // 送信後は空白に
+    setIsLoading(true);
 
     axios
       .post(url, { text: userMessage })
@@ -48,14 +51,15 @@ const Kokubun = () => {
           { title: "", url: "", sender: "bot" },
           { title: "", url: "", sender: "bot" },
         ]);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   return (
     <div className="bg-gray-100 h-full p-4 flex flex-col">
-      <h1 className="flex justify-evenly item-center text-4xl mb-10">
-        国文学科
-      </h1>
+      <h1 className="flex justify-evenly item-center text-4xl mb-10">哲学科</h1>
 
       <div className="flex-grow overflow-y-auto mb-4">
         {messages.map((message, index) => (
@@ -79,27 +83,29 @@ const Kokubun = () => {
           </div>
         ))}
         <div className="rounded flex flex-wrap overflow-y-auto">
-          {titles.map((title, index) => (
-            <div
-              key={index}
-              className="w-64 h-30 overflow-auto border-2 rounded-xl p-4 m-2 hover:bg-gray-200"
-            >
-              <p>
-                {title.url ? (
-                  <a
-                    href={title.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-500 hover:text-blue-700 w-full h-full flex  items-center justify-center"
-                  >
-                    {title.title}
-                  </a>
-                ) : (
-                  title.title
-                )}
-              </p>
-            </div>
-          ))}
+          {isLoading && <LoadingIcons.TailSpin width="50" stroke="gray" />}
+          {!isLoading &&
+            titles.map((title, index) => (
+              <div
+                key={index}
+                className="w-64 h-30 overflow-auto border-2 rounded-xl p-4 m-2 hover:bg-gray-200"
+              >
+                <p>
+                  {title.url ? (
+                    <a
+                      href={title.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-500 hover:text-blue-700 w-full h-full flex  items-center justify-center"
+                    >
+                      {title.title}
+                    </a>
+                  ) : (
+                    title.title
+                  )}
+                </p>
+              </div>
+            ))}
         </div>
       </div>
 
@@ -127,4 +133,4 @@ const Kokubun = () => {
   );
 };
 
-export default Kokubun;
+export default Tetsugaku;
